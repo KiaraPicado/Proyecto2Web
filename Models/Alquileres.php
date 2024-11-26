@@ -8,14 +8,17 @@ class Alquiler extends Conectar {
         parent::establecer_codificacion();
 
         $consulta_sql = "
-            SELECT 
-                a.idAlquiler, 
-                l.Nombre AS Libro, 
-                c.Nombre AS Cliente, 
-                a.FechaAlquiler 
-            FROM alquileres a
-            JOIN libros l ON a.idLibro = l.idLibro
-            JOIN clientes c ON a.idCliente = c.idCliente";
+        SELECT 
+            a.idAlquiler, 
+            a.idLibro, 
+            a.idCliente, 
+            a.FechaAlquiler, 
+            l.Nombre AS Libro, 
+            c.Nombre AS Cliente
+        FROM alquileres a
+        JOIN libros l ON a.idLibro = l.idLibro
+        JOIN clientes c ON a.idCliente = c.idCliente";
+            
 
         $consulta = $conexion->prepare($consulta_sql);
         $consulta->execute();
