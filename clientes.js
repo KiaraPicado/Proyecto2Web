@@ -1,17 +1,48 @@
 let clients = []; // Array para almacenar los clientes
 let selectedClientRow = null;
 
+const API_URL = 'http://localhost/Proyecto2/Controller/clientes.php';
+
+// Función para cargar los clientes desde la API
+async function fetchClients() {
+    try {
+        const response = await fetch(API_URL);
+        if (response.ok) {
+            clients = await response.json();
+            renderClientTable();
+        } else {
+            console.error(`Error al obtener los clientes: ${response.status} - ${response.statusText}`);
+        }
+    } catch (error) {
+        console.error('Error de conexión:', error);
+    }
+}
+
 // Función para agregar un cliente
-function addClient() {
+async function addClient() {
     const clientName = document.getElementById('clientName').value.trim();
     const clientEmail = document.getElementById('clientEmail').value.trim();
     const clientPhone = document.getElementById('clientPhone').value.trim();
 
     if (clientName && clientEmail && clientPhone) {
-        const newClient = { id: clients.length + 1, clientName, clientEmail, clientPhone };
-        clients.push(newClient);
-        renderClientTable();
-        clearClientFields();
+        const newClient = { Nombre: clientName, Correo: clientEmail, Telefono: clientPhone };
+
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newClient),
+            });
+
+            if (response.ok) {
+                await fetchClients(); // Recargar la lista de clientes
+                clearClientFields();
+            } else {
+                console.error(`Error al agregar el cliente: ${response.status} - ${response.statusText}`);
+            }
+        } catch (error) {
+            console.error('Error de conexión:', error);
+        }
     } else {
         alert('Todos los campos son obligatorios.');
     }
@@ -22,10 +53,10 @@ function renderClientTable() {
     const clientTable = document.getElementById('clientTable');
     clientTable.innerHTML = clients.map((client, index) => `
         <tr onclick="selectClientRow(${index})">
-            <td>${client.id}</td>
-            <td>${client.clientName}</td>
-            <td>${client.clientEmail}</td>
-            <td>${client.clientPhone}</td>
+            <td>${client.idCliente}</td>
+            <td>${client.Nombre}</td>
+            <td>${client.Correo}</td>
+            <td>${client.Telefono}</td>
         </tr>
     `).join('');
 }
@@ -41,24 +72,40 @@ function clearClientFields() {
 function selectClientRow(index) {
     selectedClientRow = index;
     const client = clients[index];
-    document.getElementById('clientName').value = client.clientName;
-    document.getElementById('clientEmail').value = client.clientEmail;
-    document.getElementById('clientPhone').value = client.clientPhone;
+    document.getElementById('clientName').value = client.Nombre;
+    document.getElementById('clientEmail').value = client.Correo;
+    document.getElementById('clientPhone').value = client.Telefono;
 
     toggleClientButtons(true);
 }
 
 // Función para editar un cliente
-function editClient() {
+async function editClient() {
     if (selectedClientRow !== null) {
+        const idCliente = clients[selectedClientRow].idCliente;
         const clientName = document.getElementById('clientName').value.trim();
         const clientEmail = document.getElementById('clientEmail').value.trim();
         const clientPhone = document.getElementById('clientPhone').value.trim();
 
         if (clientName && clientEmail && clientPhone) {
-            clients[selectedClientRow] = { id: clients[selectedClientRow].id, clientName, clientEmail, clientPhone };
-            renderClientTable();
-            clearClientFields();
+            const updatedClient = { idCliente, Nombre: clientName, Correo: clientEmail, Telefono: clientPhone };
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedClient),
+                });
+
+                if (response.ok) {
+                    await fetchClients(); // Recargar la lista de clientes
+                    clearClientFields();
+                } else {
+                    console.error(`Error al editar el cliente: ${response.status} - ${response.statusText}`);
+                }
+            } catch (error) {
+                console.error('Error de conexión:', error);
+            }
         } else {
             alert('Todos los campos son obligatorios.');
         }
@@ -66,11 +113,26 @@ function editClient() {
 }
 
 // Función para eliminar un cliente
-function deleteClient() {
+async function deleteClient() {
     if (selectedClientRow !== null) {
-        clients.splice(selectedClientRow, 1);
-        renderClientTable();
-        clearClientFields();
+        const idCliente = clients[selectedClientRow].idCliente;
+
+        try {
+            const response = await fetch(API_URL, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idCliente }),
+            });
+
+            if (response.ok) {
+                await fetchClients(); // Recargar la lista de clientes
+                clearClientFields();
+            } else {
+                console.error(`Error al eliminar el cliente: ${response.status} - ${response.statusText}`);
+            }
+        } catch (error) {
+            console.error('Error de conexión:', error);
+        }
     }
 }
 
@@ -85,3 +147,6 @@ function toggleClientButtons(isRowSelected) {
 document.getElementById('clearClientBtn').addEventListener('click', () => {
     clearClientFields();
 });
+
+// Cargar los clientes al inicio
+fetchClients();

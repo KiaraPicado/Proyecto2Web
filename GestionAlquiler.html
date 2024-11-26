@@ -14,14 +14,18 @@
     <main>
         <form id="rentalForm">
             <label for="rentalBook">Libro</label>
-            <input type="text" id="rentalBook" required>
-            
+            <select id="rentalBook" required>
+                <option value="">Seleccione un libro</option>
+            </select>
+
             <label for="rentalClient">Cliente</label>
-            <input type="text" id="rentalClient" required>
-            
+            <select id="rentalClient" required>
+                <option value="">Seleccione un cliente</option>
+            </select>
+
             <label for="rentalDate">Fecha de Alquiler</label>
             <input type="date" id="rentalDate" required>
-            
+
             <div class="buttons">
                 <button type="button" id="addRentalBtn" onclick="addRental()">Agregar</button>
                 <button type="button" id="deleteRentalBtn" onclick="deleteRental()" disabled>Eliminar</button>
@@ -29,7 +33,7 @@
                 <button type="reset" id="clearRentalBtn">Limpiar</button>
             </div>
         </form>
-        
+
         <h2>Listado de Alquileres</h2>
         <table>
             <thead>

@@ -1,22 +1,53 @@
 let books = []; // Array para almacenar los registros
 let selectedRow = null; // Fila seleccionada
 
+const API_URL = 'http://localhost/Proyecto2/Controller/libros.php';
+
 // Navegar entre pantallas
 function navigate(url) {
     window.location.href = url;
 }
 
-// Función para agregar un registro
-function addRecord() {
-    const bookName = document.getElementById('bookName').value.trim();
-    const authorName = document.getElementById('authorName').value.trim();
-    const year = document.getElementById('year').value.trim();
+// Función para cargar los registros desde la API
+async function fetchBooks() {
+    try {
+        const response = await fetch(API_URL);
+        if (response.ok) {
+            books = await response.json();
+            renderTable();
+        } else {
+            console.error(`Error al obtener los libros: ${response.status} - ${response.statusText}`);
+        }
+    } catch (error) {
+        console.error('Error de conexión:', error);
+    }
+}
 
-    if (bookName && authorName && year) {
-        const newBook = { id: books.length + 1, bookName, authorName, year };
-        books.push(newBook);
-        renderTable();
-        clearFields();
+// Función para agregar un registro
+async function addRecord() {
+    const Nombre = document.getElementById('bookName').value.trim();
+    const Autor = document.getElementById('authorName').value.trim();
+    const Anio = document.getElementById('year').value.trim();
+
+    if (Nombre && Autor && Anio) {
+        const newBook = { Nombre, Autor, Anio };
+
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newBook),
+            });
+
+            if (response.ok) {
+                await fetchBooks(); // Recargar la tabla
+                clearFields();
+            } else {
+                console.error(`Error al agregar el libro: ${response.status} - ${response.statusText}`);
+            }
+        } catch (error) {
+            console.error('Error de conexión:', error);
+        }
     } else {
         alert('Todos los campos son obligatorios.');
     }
@@ -27,10 +58,10 @@ function renderTable() {
     const bookTable = document.getElementById('bookTable');
     bookTable.innerHTML = books.map((book, index) => `
         <tr onclick="selectRow(${index})">
-            <td>${book.id}</td>
-            <td>${book.bookName}</td>
-            <td>${book.authorName}</td>
-            <td>${book.year}</td>
+            <td>${book.idLibro}</td>
+            <td>${book.Nombre}</td>
+            <td>${book.Autor}</td>
+            <td>${book.Anio}</td>
         </tr>
     `).join('');
 }
@@ -46,24 +77,40 @@ function clearFields() {
 function selectRow(index) {
     selectedRow = index;
     const book = books[index];
-    document.getElementById('bookName').value = book.bookName;
-    document.getElementById('authorName').value = book.authorName;
-    document.getElementById('year').value = book.year;
+    document.getElementById('bookName').value = book.Nombre;
+    document.getElementById('authorName').value = book.Autor;
+    document.getElementById('year').value = book.Anio;
 
     toggleButtons(true); // Habilita botones de eliminar/editar, deshabilita agregar
 }
 
 // Función para editar un registro
-function editRecord() {
+async function editRecord() {
     if (selectedRow !== null) {
-        const bookName = document.getElementById('bookName').value.trim();
-        const authorName = document.getElementById('authorName').value.trim();
-        const year = document.getElementById('year').value.trim();
+        const idLibro = books[selectedRow].idLibro;
+        const Nombre = document.getElementById('bookName').value.trim();
+        const Autor = document.getElementById('authorName').value.trim();
+        const Anio = document.getElementById('year').value.trim();
 
-        if (bookName && authorName && year) {
-            books[selectedRow] = { id: books[selectedRow].id, bookName, authorName, year };
-            renderTable();
-            clearFields();
+        if (Nombre && Autor && Anio) {
+            const bookToUpdate = { idLibro, Nombre, Autor, Anio };
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(bookToUpdate),
+                });
+
+                if (response.ok) {
+                    await fetchBooks(); // Recargar la tabla
+                    clearFields();
+                } else {
+                    console.error(`Error al editar el libro: ${response.status} - ${response.statusText}`);
+                }
+            } catch (error) {
+                console.error('Error de conexión:', error);
+            }
         } else {
             alert('Todos los campos son obligatorios.');
         }
@@ -71,11 +118,26 @@ function editRecord() {
 }
 
 // Función para eliminar un registro
-function deleteRecord() {
+async function deleteRecord() {
     if (selectedRow !== null) {
-        books.splice(selectedRow, 1);
-        renderTable();
-        clearFields();
+        const idLibro = books[selectedRow].idLibro;
+
+        try {
+            const response = await fetch(API_URL, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idLibro }),
+            });
+
+            if (response.ok) {
+                await fetchBooks(); // Recargar la tabla
+                clearFields();
+            } else {
+                console.error(`Error al eliminar el libro: ${response.status} - ${response.statusText}`);
+            }
+        } catch (error) {
+            console.error('Error de conexión:', error);
+        }
     }
 }
 
@@ -87,6 +149,7 @@ function toggleButtons(isRowSelected) {
 }
 
 // Escucha el evento de limpiar formulario
-document.getElementById('clearBtn').addEventListener('click', () => {
-    clearFields();
-});
+document.getElementById('clearBtn').addEventListener('click', clearFields);
+
+// Cargar libros al inicio
+fetchBooks();
