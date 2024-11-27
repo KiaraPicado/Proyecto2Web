@@ -1,5 +1,9 @@
-let clients = []; // Array para almacenar los clientes
+let clients = []; 
 let selectedClientRow = null;
+// Navegar entre pantallas
+function navigate(url) {
+    window.location.href = url;
+}
 
 const API_URL = 'http://localhost/Proyecto2/Controller/clientes.php';
 
@@ -35,7 +39,7 @@ async function addClient() {
             });
 
             if (response.ok) {
-                await fetchClients(); // Recargar la lista de clientes
+                await fetchClients(); 
                 clearClientFields();
             } else {
                 console.error(`Error al agregar el cliente: ${response.status} - ${response.statusText}`);
@@ -98,7 +102,7 @@ async function editClient() {
                 });
 
                 if (response.ok) {
-                    await fetchClients(); // Recargar la lista de clientes
+                    await fetchClients();
                     clearClientFields();
                 } else {
                     console.error(`Error al editar el cliente: ${response.status} - ${response.statusText}`);
@@ -125,7 +129,7 @@ async function deleteClient() {
             });
 
             if (response.ok) {
-                await fetchClients(); // Recargar la lista de clientes
+                await fetchClients(); 
                 clearClientFields();
             } else {
                 console.error(`Error al eliminar el cliente: ${response.status} - ${response.statusText}`);
@@ -148,5 +152,4 @@ document.getElementById('clearClientBtn').addEventListener('click', () => {
     clearClientFields();
 });
 
-// Cargar los clientes al inicio
 fetchClients();

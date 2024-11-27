@@ -1,5 +1,5 @@
-let books = []; // Array para almacenar los registros
-let selectedRow = null; // Fila seleccionada
+let books = []; 
+let selectedRow = null; 
 
 const API_URL = 'http://localhost/Proyecto2/Controller/libros.php';
 
@@ -40,7 +40,7 @@ async function addRecord() {
             });
 
             if (response.ok) {
-                await fetchBooks(); // Recargar la tabla
+                await fetchBooks(); 
                 clearFields();
             } else {
                 console.error(`Error al agregar el libro: ${response.status} - ${response.statusText}`);
@@ -103,7 +103,7 @@ async function editRecord() {
                 });
 
                 if (response.ok) {
-                    await fetchBooks(); // Recargar la tabla
+                    await fetchBooks(); 
                     clearFields();
                 } else {
                     console.error(`Error al editar el libro: ${response.status} - ${response.statusText}`);
@@ -130,7 +130,7 @@ async function deleteRecord() {
             });
 
             if (response.ok) {
-                await fetchBooks(); // Recargar la tabla
+                await fetchBooks(); 
                 clearFields();
             } else {
                 console.error(`Error al eliminar el libro: ${response.status} - ${response.statusText}`);
